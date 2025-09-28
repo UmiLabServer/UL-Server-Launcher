@@ -1,0 +1,59 @@
+# UL-Server-Launcher 設定ファイル
+
+## サーバー設定
+[servers]
+
+[[servers.config]]
+name = "Minecraft Server"
+host = "localhost"
+port = 25565
+type = "minecraft"
+auto_start = false
+command = "java -Xmx2G -jar minecraft_server.jar nogui"
+working_dir = "/opt/minecraft"
+
+[[servers.config]]
+name = "Web Server"
+host = "0.0.0.0"
+port = 8080
+type = "web"
+auto_start = true
+command = "python3 -m http.server 8080"
+working_dir = "/var/www/html"
+
+[[servers.config]]
+name = "Database Server"
+host = "localhost"
+port = 5432
+type = "database"
+auto_start = true
+command = "postgres -D /var/lib/postgresql/data"
+working_dir = "/var/lib/postgresql"
+
+[[servers.config]]
+name = "API Server"
+host = "localhost"
+port = 3000
+type = "api"
+auto_start = false
+command = "node server.js"
+working_dir = "/opt/api-server"
+
+## 監視設定
+[monitoring]
+health_check_interval = 30
+cpu_threshold = 80
+memory_threshold = 90
+disk_threshold = 85
+
+## 通知設定
+[notifications]
+email_alerts = true
+slack_integration = false
+discord_webhook = "https://discord.com/api/webhooks/your-webhook-url"
+
+## ログ設定
+[logging]
+retention_days = 30
+max_log_size_mb = 100
+log_level = "info"
