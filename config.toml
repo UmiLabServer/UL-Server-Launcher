@@ -1,6 +1,4 @@
-# UL-Server-Launcher 設定ファイル
 
-## サーバー設定
 [servers]
 
 [[servers.config]]
@@ -39,20 +37,17 @@ auto_start = false
 command = "node server.js"
 working_dir = "/opt/api-server"
 
-## 監視設定
 [monitoring]
 health_check_interval = 30
 cpu_threshold = 80
 memory_threshold = 90
 disk_threshold = 85
 
-## 通知設定
 [notifications]
 email_alerts = true
 slack_integration = false
 discord_webhook = "https://discord.com/api/webhooks/your-webhook-url"
 
-## ログ設定
 [logging]
 retention_days = 30
 max_log_size_mb = 100

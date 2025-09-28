@@ -25,6 +25,24 @@ impl ServerStatus {
             ServerStatus::Error => "Error",
         }
     }
+
+    pub fn as_str_animated(&self, tick_count: usize) -> String {
+        match self {
+            ServerStatus::Running => "Running".to_string(),
+            ServerStatus::Stopped => "Stopped".to_string(),
+            ServerStatus::Starting => {
+                let dots = match tick_count % 4 {
+                    0 => "",
+                    1 => ".",
+                    2 => "..",
+                    3 => "...",
+                    _ => "",
+                };
+                format!("Starting{}", dots)
+            },
+            ServerStatus::Error => "Error".to_string(),
+        }
+    }
 }
 
 pub struct App {
@@ -32,6 +50,7 @@ pub struct App {
     pub selected_server: usize,
     pub current_tab: usize,
     pub tabs: Vec<&'static str>,
+    pub tick_count: usize,
 }
 
 impl App {
@@ -68,6 +87,7 @@ impl App {
             selected_server: 0,
             current_tab: 0,
             tabs: vec!["Servers", "Logs", "Settings"],
+            tick_count: 0,
         }
     }
 
@@ -108,5 +128,9 @@ impl App {
                 _ => {}
             }
         }
+    }
+
+    pub fn tick(&mut self) {
+        self.tick_count = self.tick_count.wrapping_add(1);
     }
 }

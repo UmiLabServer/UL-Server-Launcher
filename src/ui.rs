@@ -17,8 +17,7 @@ pub fn ui(f: &mut Frame, app: &App) {
         ])
         .split(f.size());
 
-    // Header with title
-    let title = Paragraph::new("🚀 UmiLab Server Launcher")
+    let title = Paragraph::new("ULS Server Launcher")
         .style(Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD))
         .alignment(Alignment::Center)
         .block(
@@ -28,7 +27,6 @@ pub fn ui(f: &mut Frame, app: &App) {
         );
     f.render_widget(title, chunks[0]);
 
-    // Tabs
     let tab_titles: Vec<Line> = app
         .tabs
         .iter()
@@ -51,7 +49,6 @@ pub fn ui(f: &mut Frame, app: &App) {
     
     f.render_widget(tabs, main_chunks[0]);
 
-    // Main content based on selected tab
     match app.current_tab {
         0 => render_servers_tab(f, main_chunks[1], app),
         1 => render_logs_tab(f, main_chunks[1], app),
@@ -59,7 +56,6 @@ pub fn ui(f: &mut Frame, app: &App) {
         _ => {}
     }
 
-    // Footer with help
     let help_text = match app.current_tab {
         0 => "Press ↑↓/jk to navigate, Enter to toggle server, Tab to switch tabs, q to quit",
         1 => "Press Tab to switch tabs, q to quit",
@@ -102,7 +98,7 @@ fn render_servers_tab(f: &mut Frame, area: Rect, app: &App) {
                 Cell::from(server.name.as_str()),
                 Cell::from(server.host.as_str()),
                 Cell::from(server.port.to_string()),
-                Cell::from(server.status.as_str()).style(status_style),
+                Cell::from(server.status.as_str_animated(app.tick_count)).style(status_style),
             ])
             .style(style)
         })
@@ -115,14 +111,14 @@ fn render_servers_tab(f: &mut Frame, area: Rect, app: &App) {
             Constraint::Percentage(15),
             Constraint::Percentage(30),
         ])
-    .header(header)
-    .block(
-        Block::default()
-            .borders(Borders::ALL)
-            .title("Server Status")
-            .border_style(Style::default().fg(Color::White)),
-    )
-    .highlight_style(Style::default().bg(Color::DarkGray));
+        .header(header)
+        .block(
+            Block::default()
+                .borders(Borders::ALL)
+                .title("Server Status")
+                .border_style(Style::default().fg(Color::White)),
+        )
+        .highlight_style(Style::default().bg(Color::DarkGray));
 
     f.render_widget(table, area);
 }
