@@ -1,9 +1,7 @@
 use crate::app::{App, ServerStatus};
 use ratatui::{
     prelude::*,
-    widgets::{
-        Block, Borders, Cell, List, ListItem, Paragraph, Row, Table, Tabs, Wrap,
-    },
+    widgets::{Block, Borders, Cell, List, ListItem, Paragraph, Row, Table, Tabs, Wrap},
 };
 
 pub fn ui(f: &mut Frame, app: &App) {
@@ -18,7 +16,11 @@ pub fn ui(f: &mut Frame, app: &App) {
         .split(f.size());
 
     let title = Paragraph::new("ULS Server Launcher")
-        .style(Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD))
+        .style(
+            Style::default()
+                .fg(Color::Cyan)
+                .add_modifier(Modifier::BOLD),
+        )
         .alignment(Alignment::Center)
         .block(
             Block::default()
@@ -27,36 +29,32 @@ pub fn ui(f: &mut Frame, app: &App) {
         );
     f.render_widget(title, chunks[0]);
 
-    let tab_titles: Vec<Line> = app
-        .tabs
-        .iter()
-        .map(|t| Line::from(*t))
-        .collect();
-    let menu = Tabs::new(tab_titles)
+    let menu_items: Vec<Line> = app.main_menu.iter().map(|t| Line::from(*t)).collect();
+    let menu = Tabs::new(menu_items)
         .block(Block::default().borders(Borders::ALL).title("Menu"))
-        .select(app.current_tab)
+        .select(app.current_menu)
         .style(Style::default().fg(Color::White))
         .highlight_style(
             Style::default()
                 .fg(Color::Yellow)
                 .add_modifier(Modifier::BOLD),
         );
-    
+
     let main_chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([Constraint::Length(3), Constraint::Min(0)])
         .split(chunks[1]);
-    
+
     f.render_widget(menu, main_chunks[0]);
 
-    match app.current_tab {
-        0 => render_servers_tab(f, main_chunks[1], app),
-        1 => render_preferences_tab(f, main_chunks[1], app),
+    match app.current_menu {
+        0 => MainRender::servers(f, main_chunks[1], app),
+        1 => MainRender::preferences(f, main_chunks[1], app),
         _ => {}
     }
 
     let help_text = "Press ↑↓ to move list, Press ←→ to move menu, Enter to edit Server, q to quit";
-    
+
     let help = Paragraph::new(help_text)
         .style(Style::default().fg(Color::Gray))
         .alignment(Alignment::Center)
@@ -64,70 +62,90 @@ pub fn ui(f: &mut Frame, app: &App) {
     f.render_widget(help, chunks[2]);
 }
 
-fn render_servers_tab(f: &mut Frame, area: Rect, app: &App) {
-    let header = Row::new(vec!["Name", "Host", "Port", "Status"])
-        .style(Style::default().fg(Color::Yellow))
-        .height(1)
-        .bottom_margin(1);
+struct MainRender;
+struct EditRender;
 
-    let rows: Vec<Row> = app
-        .servers
-        .iter()
-        .enumerate()
-        .map(|(i, server)| {
-            let style = if i == app.selected_server {
-                Style::default().bg(Color::DarkGray).fg(Color::White)
-            } else {
-                Style::default()
-            };
-            /*let status_style = match server.status {
-                ServerStatus::Running => Style::default().fg(Color::Green),
-                ServerStatus::Stopped => Style::default().fg(Color::Red),
-                ServerStatus::Starting => Style::default().fg(Color::Yellow),
-                ServerStatus::Error => Style::default().fg(Color::LightRed),
-            };*/
+impl MainRender {
+    fn servers(f: &mut Frame, area: Rect, app: &App) {
+        let header = Row::new(vec!["Name", "Host", "Port", "Status"])
+            .style(Style::default().fg(Color::Yellow))
+            .height(1)
+            .bottom_margin(1);
 
-            Row::new(vec![
-                Cell::from(server.name.as_str()),
-                Cell::from(server.host.as_str()),
-                Cell::from(server.port.to_string()),
-                //Cell::from(server.status.as_str_animated(app.tick_count)).style(status_style),
+        let rows: Vec<Row> = app
+            .servers
+            .iter()
+            .enumerate()
+            .map(|(i, server)| {
+                let style = if i == app.selected_server {
+                    Style::default().bg(Color::DarkGray).fg(Color::White)
+                } else {
+                    Style::default()
+                };
+                /*let status_style = match server.status {
+                    ServerStatus::Running => Style::default().fg(Color::Green),
+                    ServerStatus::Stopped => Style::default().fg(Color::Red),
+                    ServerStatus::Starting => Style::default().fg(Color::Yellow),
+                    ServerStatus::Error => Style::default().fg(Color::LightRed),
+                };*/
+
+                Row::new(vec![
+                    Cell::from(server.name.as_str()),
+                    Cell::from(server.host.as_str()),
+                    Cell::from(server.port.to_string()),
+                    //Cell::from(server.status.as_str_animated(app.tick_count)).style(status_style),
+                ])
+                .style(style)
+            })
+            .collect();
+
+        let table = Table::new(rows)
+            .widths(&[
+                Constraint::Percentage(30),
+                Constraint::Percentage(25),
+                Constraint::Percentage(15),
+                Constraint::Percentage(30),
             ])
-            .style(style)
-        })
-        .collect();
-
-    let table = Table::new(rows)
-        .widths(&[
-            Constraint::Percentage(30),
-            Constraint::Percentage(25),
-            Constraint::Percentage(15),
-            Constraint::Percentage(30),
-        ])
-        .header(header)
-        .block(
-            Block::default()
-                .borders(Borders::ALL)
-                .title("Server Status")
-                .border_style(Style::default().fg(Color::White)),
-        )
-        .highlight_style(Style::default().bg(Color::DarkGray));
-
-    f.render_widget(table, area);
-}
-
-fn render_preferences_tab(f: &mut Frame, area: Rect, app: &App) {
-    let items: Vec<ListItem> = vec![
-        ListItem::new(""),
-        ListItem::new("Preference 2: ..."),
-        ListItem::new("Preference 3: ..."),
-    ];
-    let preferences = List::new(items)
-        .block(
+            .header(header)
+            .block(
+                Block::default()
+                    .borders(Borders::ALL)
+                    .title("Server Status")
+                    .border_style(Style::default().fg(Color::White)),
+            )
+            .highlight_style(Style::default().bg(Color::DarkGray));
+        f.render_widget(table, area);
+    }
+    fn preferences(f: &mut Frame, area: Rect, app: &App) {
+        let items: Vec<ListItem> = vec![
+            ListItem::new(""),
+            ListItem::new("Preference 2: ..."),
+            ListItem::new("Preference 3: ..."),
+        ];
+        let preferences = List::new(items).block(
             Block::default()
                 .borders(Borders::ALL)
                 .title("Preferences")
                 .border_style(Style::default().fg(Color::White)),
         );
-    f.render_widget(preferences, area);
+        f.render_widget(preferences, area);
+    }
+}
+
+impl EditRender {
+    fn logs(f: &mut Frame, area: Rect, app: &App) {
+        
+    }
+    fn mods(f: &mut Frame, area: Rect, app: &App) {
+        
+    }
+    fn config(f: &mut Frame, area: Rect, app: &App) {
+        
+    }
+    fn world(f: &mut Frame, area: Rect, app: &App) {
+        
+    }
+    fn settings(f: &mut Frame, area: Rect, app: &App) {
+        
+    }
 }

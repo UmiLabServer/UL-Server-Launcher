@@ -1,6 +1,6 @@
 mod app;
-mod ui;
 mod events;
+mod ui;
 
 use anyhow::Result;
 use app::App;
@@ -9,10 +9,7 @@ use crossterm::{
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
-use ratatui::{
-    prelude::*,
-    Terminal,
-};
+use ratatui::{prelude::*, Terminal};
 use std::io;
 
 fn main() -> Result<()> {
@@ -50,8 +47,8 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> Result<()> {
                 KeyCode::Down => app.next(),
                 KeyCode::Up => app.previous(),
                 KeyCode::Enter => app.select_item(),
-                KeyCode::Right => app.next_tab(),
-                KeyCode::Left => app.previous_tab(),
+                KeyCode::Right => app.next_menu(),
+                KeyCode::Left => app.previous_menu(),
                 _ => {}
             }
         }

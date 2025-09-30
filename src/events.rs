@@ -39,13 +39,11 @@ impl Events {
         let tick_rate = config.tick_rate;
 
         let event_tx = tx.clone();
-        let input_handle = thread::spawn(move || {
-            loop {
-                if crossterm::event::poll(tick_rate).unwrap() {
-                    if let Ok(Event::Key(key)) = crossterm::event::read() {
-                        if event_tx.send(AppEvent::Key(key)).is_err() {
-                            return;
-                        }
+        let input_handle = thread::spawn(move || loop {
+            if crossterm::event::poll(tick_rate).unwrap() {
+                if let Ok(Event::Key(key)) = crossterm::event::read() {
+                    if event_tx.send(AppEvent::Key(key)).is_err() {
+                        return;
                     }
                 }
             }
