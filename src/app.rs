@@ -1,11 +1,13 @@
 use serde::{Deserialize, Serialize};
+use std::fs;
+use std::path::Path;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ServerConfig {
     pub name: String,
     pub host: String,
     pub port: u16,
-    pub status: ServerStatus,
+    pub dir_name: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -55,40 +57,31 @@ pub struct App {
 
 impl App {
     pub fn new() -> Self {
-        let servers = vec![
-            ServerConfig {
-                name: "Minecraft Server".to_string(),
-                host: "localhost".to_string(),
-                port: 25565,
-                status: ServerStatus::Stopped,
-            },
-            ServerConfig {
-                name: "Web Server".to_string(),
-                host: "0.0.0.0".to_string(),
-                port: 8080,
-                status: ServerStatus::Running,
-            },
-            ServerConfig {
-                name: "Database Server".to_string(),
-                host: "localhost".to_string(),
-                port: 5432,
-                status: ServerStatus::Starting,
-            },
-            ServerConfig {
-                name: "API Server".to_string(),
-                host: "localhost".to_string(),
-                port: 3000,
-                status: ServerStatus::Error,
-            },
-        ];
-
+        let servers = Self::load_config().unwrap_or_else(|_| vec![]);
         Self {
             servers,
             selected_server: 0,
             current_tab: 0,
-            tabs: vec!["Servers", "Logs", "Settings"],
+            tabs: vec!["Servers", "Preference"],
             tick_count: 0,
         }
+    }
+
+    const CONFIG_FILE: &'static str = "servers.json";
+
+    pub fn save_config(&self) -> Result<(), Box<dyn std::error::Error>> {
+        let json = serde_json::to_string_pretty(&self.servers)?;
+        fs::write(Self::CONFIG_FILE, json)?;
+        Ok(())
+    }
+
+    pub fn load_config() -> Result<Vec<ServerConfig>, Box<dyn std::error::Error>> {
+        if !Path::new(Self::CONFIG_FILE).exists() {
+            return Err("Config file does not exist".into());
+        }
+        let content = fs::read_to_string(Self::CONFIG_FILE)?;
+        let servers: Vec<ServerConfig> = serde_json::from_str(&content)?;
+        Ok(servers)
     }
 
     pub fn next(&mut self) {
@@ -122,15 +115,33 @@ impl App {
     pub fn select_item(&mut self) {
         if self.current_tab == 0 && !self.servers.is_empty() {
             let server = &mut self.servers[self.selected_server];
-            match server.status {
-                ServerStatus::Running => server.status = ServerStatus::Stopped,
-                ServerStatus::Stopped => server.status = ServerStatus::Starting,
-                _ => {}
-            }
+            let _ = self.save_config();
         }
     }
 
     pub fn tick(&mut self) {
         self.tick_count = self.tick_count.wrapping_add(1);
+    }
+
+    pub fn add_server(&mut self, config: ServerConfig) {
+        self.servers.push(config);
+        let _ = self.save_config();
+    }
+
+    pub fn remove_server(&mut self, index: usize) {
+        if index < self.servers.len() {
+            self.servers.remove(index);
+            if self.selected_server >= self.servers.len() && !self.servers.is_empty() {
+                self.selected_server = self.servers.len() - 1;
+            }
+            let _ = self.save_config();
+        }
+    }
+
+    pub fn update_server(&mut self, index: usize, config: ServerConfig) {
+        if index < self.servers.len() {
+            self.servers[index] = config;
+            let _ = self.save_config();
+        }
     }
 }
