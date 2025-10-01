@@ -91,7 +91,6 @@ impl App {
     pub fn next(&mut self) {
         if !self.servers.is_empty() && self.menu_mode == 0 {
             self.selected_server = (self.selected_server + 1) % self.servers.len();
-            self.selected_server_name = self.servers[self.selected_server].name.to_string();
         }
     }
 
@@ -99,7 +98,6 @@ impl App {
         if !self.servers.is_empty() && self.menu_mode == 0 {
             if self.selected_server == 0 {
                 self.selected_server = self.servers.len() - 1;
-                self.selected_server_name = self.servers[self.selected_server].name.to_string();
             } else {
                 self.selected_server -= 1;
             }
@@ -120,7 +118,7 @@ impl App {
 
     pub fn forward(&mut self) {
         if self.current_item == 0 && !self.servers.is_empty() && self.menu_mode == 0 {
-            let edit_server_name = &mut self.servers[self.selected_server].name.to_string();
+            self.selected_server_name = self.servers[self.selected_server].name.to_string();
             let _ = self.save_config();
             self.menu_mode = 1;
             self.menu = vec!["Logs", "Mods", "Config", "World", "Settings"];
