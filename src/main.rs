@@ -47,9 +47,9 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> Result<()> {
                 KeyCode::Down => app.next(),
                 KeyCode::Up => app.previous(),
                 KeyCode::Enter => app.forward(),
+                KeyCode::Esc => app.back(),
                 KeyCode::Right => app.next_menu(),
                 KeyCode::Left => app.previous_menu(),
-                KeyCode::Esc => app.back(),
                 _ => {}
             }
         }

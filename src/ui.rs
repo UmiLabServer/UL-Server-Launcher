@@ -82,7 +82,7 @@ impl MainRender {
             .iter()
             .enumerate()
             .map(|(i, server)| {
-                let style = if i == app.selected_server {
+                let style = if i == app.selected_item {
                     Style::default().bg(Color::DarkGray).fg(Color::White)
                 } else {
                     Style::default()
@@ -144,6 +144,20 @@ impl EditRender {
             ListItem::new("Preference 2: ..."),
             ListItem::new("Preference 3: ..."),
         ];
+        let logs = List::new(items).block(
+            Block::default()
+                .borders(Borders::ALL)
+                .title(format!("Selected Server: {}", app.selected_server_name))
+                .border_style(Style::default().fg(Color::White)),
+        );
+        f.render_widget(logs, area);
+    }
+    fn mods(f: &mut Frame, area: Rect, app: &App) {
+                let items: Vec<ListItem> = vec![
+            ListItem::new(""),
+            ListItem::new("Preference 2: ..."),
+            ListItem::new("Preference 3: ..."),
+        ];
         let preferences = List::new(items).block(
             Block::default()
                 .borders(Borders::ALL)
@@ -152,7 +166,6 @@ impl EditRender {
         );
         f.render_widget(preferences, area);
     }
-    fn mods(f: &mut Frame, area: Rect, app: &App) {}
     fn config(f: &mut Frame, area: Rect, app: &App) {}
     fn world(f: &mut Frame, area: Rect, app: &App) {}
     fn settings(f: &mut Frame, area: Rect, app: &App) {}

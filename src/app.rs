@@ -49,7 +49,7 @@ impl ServerStatus {
 
 pub struct App {
     pub servers: Vec<ServerConfig>,
-    pub selected_server: usize,
+    pub selected_item: usize,
     pub tick_count: usize,
     pub current_item: usize,
     pub menu_mode: usize,
@@ -62,7 +62,7 @@ impl App {
         let servers = Self::load_config().unwrap_or_else(|_| vec![]);
         Self {
             servers,
-            selected_server: 0,
+            selected_item: 0,
             tick_count: 0,
             current_item: 0,
             menu_mode: 0,
@@ -90,16 +90,16 @@ impl App {
 
     pub fn next(&mut self) {
         if !self.servers.is_empty() && self.menu_mode == 0 {
-            self.selected_server = (self.selected_server + 1) % self.servers.len();
+            self.selected_item = (self.selected_item + 1) % self.servers.len();
         }
     }
 
     pub fn previous(&mut self) {
         if !self.servers.is_empty() && self.menu_mode == 0 {
-            if self.selected_server == 0 {
-                self.selected_server = self.servers.len() - 1;
+            if self.selected_item == 0 {
+                self.selected_item = self.servers.len() - 1;
             } else {
-                self.selected_server -= 1;
+                self.selected_item -= 1;
             }
         }
     }
@@ -118,7 +118,7 @@ impl App {
 
     pub fn forward(&mut self) {
         if self.current_item == 0 && !self.servers.is_empty() && self.menu_mode == 0 {
-            self.selected_server_name = self.servers[self.selected_server].name.to_string();
+            self.selected_server_name = self.servers[self.selected_item].name.to_string();
             let _ = self.save_config();
             self.menu_mode = 1;
             self.menu = vec!["Logs", "Mods", "Config", "World", "Settings"];
@@ -143,8 +143,8 @@ impl App {
     pub fn remove_server(&mut self, index: usize) {
         if index < self.servers.len() {
             self.servers.remove(index);
-            if self.selected_server >= self.servers.len() && !self.servers.is_empty() {
-                self.selected_server = self.servers.len() - 1;
+            if self.selected_item >= self.servers.len() && !self.servers.is_empty() {
+                self.selected_item = self.servers.len() - 1;
             }
             let _ = self.save_config();
         }
