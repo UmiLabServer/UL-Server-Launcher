@@ -46,9 +46,10 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> Result<()> {
                 KeyCode::Char('q') => return Ok(()),
                 KeyCode::Down => app.next(),
                 KeyCode::Up => app.previous(),
-                KeyCode::Enter => app.select_item(),
+                KeyCode::Enter => app.forward(),
                 KeyCode::Right => app.next_menu(),
                 KeyCode::Left => app.previous_menu(),
+                KeyCode::Esc => app.back(),
                 _ => {}
             }
         }

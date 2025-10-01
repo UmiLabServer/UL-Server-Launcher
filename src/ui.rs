@@ -29,10 +29,10 @@ pub fn ui(f: &mut Frame, app: &App) {
         );
     f.render_widget(title, chunks[0]);
 
-    let menu_items: Vec<Line> = app.main_menu.iter().map(|t| Line::from(*t)).collect();
+    let menu_items: Vec<Line> = app.menu.iter().map(|t| Line::from(*t)).collect();
     let menu = Tabs::new(menu_items)
         .block(Block::default().borders(Borders::ALL).title("Menu"))
-        .select(app.current_menu)
+        .select(app.current_item)
         .style(Style::default().fg(Color::White))
         .highlight_style(
             Style::default()
@@ -47,14 +47,19 @@ pub fn ui(f: &mut Frame, app: &App) {
 
     f.render_widget(menu, main_chunks[0]);
 
-    match app.current_menu {
-        0 => MainRender::servers(f, main_chunks[1], app),
-        1 => MainRender::preferences(f, main_chunks[1], app),
+    match (app.menu_mode, app.current_item) {
+        // menu wo sewigyo
+        (0, 0) => MainRender::servers(f, main_chunks[1], app),
+        (0, 1) => MainRender::preferences(f, main_chunks[1], app),
+        (1, 0) => EditRender::logs(f, main_chunks[1], app),
+        (1, 1) => EditRender::mods(f, main_chunks[1], app),
+        (1, 2) => EditRender::config(f, main_chunks[1], app),
+        (1, 3) => EditRender::world(f, main_chunks[1], app),
+        (1, 4) => EditRender::settings(f, main_chunks[1], app),
         _ => {}
     }
 
     let help_text = "Press ↑↓ to move list, Press ←→ to move menu, Enter to edit Server, q to quit";
-
     let help = Paragraph::new(help_text)
         .style(Style::default().fg(Color::Gray))
         .alignment(Alignment::Center)
@@ -110,7 +115,7 @@ impl MainRender {
             .block(
                 Block::default()
                     .borders(Borders::ALL)
-                    .title("Server Status")
+                    .title("Server List")
                     .border_style(Style::default().fg(Color::White)),
             )
             .highlight_style(Style::default().bg(Color::DarkGray));
@@ -134,18 +139,21 @@ impl MainRender {
 
 impl EditRender {
     fn logs(f: &mut Frame, area: Rect, app: &App) {
-        
+        let items: Vec<ListItem> = vec![
+            ListItem::new(""),
+            ListItem::new("Preference 2: ..."),
+            ListItem::new("Preference 3: ..."),
+        ];
+        let preferences = List::new(items).block(
+            Block::default()
+                .borders(Borders::ALL)
+                .title(format!("Selected Server: {}", app.selected_server_name))
+                .border_style(Style::default().fg(Color::White)),
+        );
+        f.render_widget(preferences, area);
     }
-    fn mods(f: &mut Frame, area: Rect, app: &App) {
-        
-    }
-    fn config(f: &mut Frame, area: Rect, app: &App) {
-        
-    }
-    fn world(f: &mut Frame, area: Rect, app: &App) {
-        
-    }
-    fn settings(f: &mut Frame, area: Rect, app: &App) {
-        
-    }
+    fn mods(f: &mut Frame, area: Rect, app: &App) {}
+    fn config(f: &mut Frame, area: Rect, app: &App) {}
+    fn world(f: &mut Frame, area: Rect, app: &App) {}
+    fn settings(f: &mut Frame, area: Rect, app: &App) {}
 }

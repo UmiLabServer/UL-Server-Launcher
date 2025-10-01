@@ -51,10 +51,10 @@ pub struct App {
     pub servers: Vec<ServerConfig>,
     pub selected_server: usize,
     pub tick_count: usize,
-    pub current_menu: usize,
+    pub current_item: usize,
     pub menu_mode: usize,
-    pub main_menu: Vec<&'static str>,
-    pub edit_menu: Vec<&'static str>,
+    pub menu: Vec<&'static str>,
+    pub selected_server_name: String,
 }
 
 impl App {
@@ -64,10 +64,10 @@ impl App {
             servers,
             selected_server: 0,
             tick_count: 0,
-            current_menu: 0,
+            current_item: 0,
             menu_mode: 0,
-            main_menu: vec!["Servers", "Preference"],
-            edit_menu: vec!["Logs", "Mods", "Config", "World", "Settings"],
+            menu: vec!["Servers", "Preference"],
+            selected_server_name: String::new(),
         }
     }
 
@@ -89,15 +89,17 @@ impl App {
     }
 
     pub fn next(&mut self) {
-        if !self.servers.is_empty() {
+        if !self.servers.is_empty() && self.menu_mode == 0 {
             self.selected_server = (self.selected_server + 1) % self.servers.len();
+            self.selected_server_name = self.servers[self.selected_server].name.to_string();
         }
     }
 
     pub fn previous(&mut self) {
-        if !self.servers.is_empty() {
+        if !self.servers.is_empty() && self.menu_mode == 0 {
             if self.selected_server == 0 {
                 self.selected_server = self.servers.len() - 1;
+                self.selected_server_name = self.servers[self.selected_server].name.to_string();
             } else {
                 self.selected_server -= 1;
             }
@@ -105,22 +107,29 @@ impl App {
     }
 
     pub fn next_menu(&mut self) {
-        self.current_menu = (self.current_menu + 1) % self.main_menu.len();
+        self.current_item = (self.current_item + 1) % self.menu.len();
     }
 
     pub fn previous_menu(&mut self) {
-        if self.current_menu == 0 {
-            self.current_menu = self.main_menu.len() - 1;
+        if self.current_item == 0 {
+            self.current_item = self.menu.len() - 1;
         } else {
-            self.current_menu -= 1;
+            self.current_item -= 1;
         }
     }
 
-    pub fn select_item(&mut self) {
-        if self.current_menu == 0 && !self.servers.is_empty() && self.menu_mode == 0 {
-            /*let server = &mut self.servers[self.selected_server];
-            let _ = self.save_config();*/
+    pub fn forward(&mut self) {
+        if self.current_item == 0 && !self.servers.is_empty() && self.menu_mode == 0 {
+            let edit_server_name = &mut self.servers[self.selected_server].name.to_string();
+            let _ = self.save_config();
             self.menu_mode = 1;
+            self.menu = vec!["Logs", "Mods", "Config", "World", "Settings"];
+        }
+    }
+    pub fn back(&mut self) {
+        if self.menu_mode == 1 {
+            self.menu_mode = 0;
+            self.menu = vec!["Servers", "Preference"];
         }
     }
 
