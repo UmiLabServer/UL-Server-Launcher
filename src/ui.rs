@@ -153,20 +153,59 @@ impl EditRender {
         f.render_widget(logs, area);
     }
     fn mods(f: &mut Frame, area: Rect, app: &App) {
-                let items: Vec<ListItem> = vec![
+        let items: Vec<ListItem> = vec![
             ListItem::new(""),
             ListItem::new("Preference 2: ..."),
             ListItem::new("Preference 3: ..."),
         ];
-        let preferences = List::new(items).block(
+        let mods = List::new(items).block(
             Block::default()
                 .borders(Borders::ALL)
                 .title(format!("Selected Server: {}", app.selected_server_name))
                 .border_style(Style::default().fg(Color::White)),
         );
-        f.render_widget(preferences, area);
+        f.render_widget(mods, area);
     }
-    fn config(f: &mut Frame, area: Rect, app: &App) {}
-    fn world(f: &mut Frame, area: Rect, app: &App) {}
-    fn settings(f: &mut Frame, area: Rect, app: &App) {}
+    fn config(f: &mut Frame, area: Rect, app: &App) {
+        let items: Vec<ListItem> = vec![
+            ListItem::new(""),
+            ListItem::new("Preference 2: ..."),
+            ListItem::new("Preference 3: ..."),
+        ];
+        let config = List::new(items).block(
+            Block::default()
+                .borders(Borders::ALL)
+                .title(format!("Selected Server: {}", app.selected_server_name))
+                .border_style(Style::default().fg(Color::White)),
+        );
+        f.render_widget(config, area);
+    }
+    fn world(f: &mut Frame, area: Rect, app: &App) {
+        let items: Vec<ListItem> = vec![
+            ListItem::new(""),
+            ListItem::new("Preference 2: ..."),
+            ListItem::new("Preference 3: ..."),
+        ];
+        let world = List::new(items).block(
+            Block::default()
+                .borders(Borders::ALL)
+                .title(format!("Selected Server: {}", app.selected_server_name))
+                .border_style(Style::default().fg(Color::White)),
+        );
+        f.render_widget(world, area);
+    }
+    fn settings(f: &mut Frame, area: Rect, app: &App) {
+        let items: Vec<ListItem> = vec![
+            ListItem::new(""),
+            ListItem::new("Preference 2: ..."),
+            ListItem::new("Preference 3: ..."),
+        ];
+        let settings = List::new(items).block(
+            Block::default()
+                .borders(Borders::ALL)
+                .title(format!("Selected Server: {}", app.selected_server_name))
+                .border_style(Style::default().fg(Color::White)),
+        );
+        f.render_widget(settings, area);
+    }
 }
